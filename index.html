@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Botón de Llamada Vapi</title>
+
+  <!-- 1. Cargamos el SDK de Vapi directamente desde el navegador -->
+  <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.js"></script>
+
+  <!-- 2. Estilos opcionales para personalizar el botón (apariencia similar a la imagen) -->
+  <style>
+    body {
+      background-color: #0d2319; /* Fondo oscuro opcional */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .vapi-btn {
+      background-color: #fff9ea;
+      color: #000;
+      border: 1px solid #ffffff33;
+      border-radius: 50px;
+      padding: 16px 36px;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .vapi-btn:hover {
+      transform: scale(1.03);
+      background-color: #ffffff;
+    }
+
+    .vapi-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3. Botón interactivo -->
+  <button id="call-btn" class="vapi-btn">
+    START CALL 🎙️
+  </button>
+
+  <!-- 4. Lógica de JavaScript -->
+  <script>
+    // Configura tus claves aquí:
+    const PUBLIC_KEY = "18cf450c-7d12-4401-8b2a-c89e37e59025";      // Reemplaza por tu Public Key de Vapi
+    const ASSISTANT_ID = "4b1a1ca4-a69a-49fb-8b48-5bce2711b29a";  // Reemplaza por el ID de tu Asistente
+
+    // Inicialización del cliente Vapi
+    const vapi = new Vapi.default(PUBLIC_KEY);
+    const button = document.getElementById('call-btn');
+    let isCalling = false;
+
+    button.addEventListener('click', async () => {
+      if (!isCalling) {
+        button.textContent = "CONECTANDO...";
+        try {
+          await vapi.start(ASSISTANT_ID);
+        } catch (err) {
+          console.error("Error al iniciar la llamada:", err);
+          button.textContent = "START CALL 🎙️";
+        }
+      } else {
+        vapi.stop();
+      }
+    });
+
+    // Eventos de estado de la llamada
+    vapi.on('call-start', () => {
+      isCalling = true;
+      button.textContent = "FINALIZAR LLAMADA 🛑";
+      button.style.backgroundColor = "#ff4d4d";
+      button.style.color = "#fff";
+    });
+
+    vapi.on('call-end', () => {
+      isCalling = false;
+      button.textContent = "START CALL 🎙️";
+      button.style.backgroundColor = "#fff9ea";
+      button.style.color = "#000";
+    });
+
+    vapi.on('error', (e) => {
+      console.error("Error de Vapi:", e);
+      isCalling = false;
+      button.textContent = "START CALL 🎙️";
+    });
+  </script>
+
+</body>
+</html>
